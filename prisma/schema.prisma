@@ -1,0 +1,132 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+model Admin {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  password  String
+  name      String?
+  role      String   @default("admin")
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Project {
+  id          String   @id @default(cuid())
+
+  title       String
+  description String   @db.Text
+
+  techStack   String?
+  githubUrl   String?
+  liveUrl     String?
+  imageUrl    String?
+
+  featured    Boolean  @default(false)
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Skill {
+  id        String   @id @default(cuid())
+  name      String
+  category  String
+  level     String
+  icon      String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Experience {
+  id          String   @id @default(cuid())
+
+  year        String
+  title       String
+  company     String
+  location    String?
+
+  description String   @db.Text
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Message {
+  id        String   @id @default(cuid())
+
+  name      String
+  email     String
+  subject   String?
+
+  message   String   @db.Text
+
+  isRead    Boolean  @default(false)
+
+  createdAt DateTime @default(now())
+}
+
+model Testimonial {
+  id        String   @id @default(cuid())
+
+  name      String
+  role      String
+  company   String?
+
+  review    String   @db.Text
+
+  imageUrl  String?
+
+  status    String   @default("pending")
+  featured  Boolean  @default(false)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Certificate {
+  id          String   @id @default(cuid())
+
+  title       String
+  issuer      String
+  issuedDate  String
+
+  credential  String?
+  imageUrl    String?
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model SocialLink {
+  id        String   @id @default(cuid())
+
+  platform  String
+  url       String
+  icon      String?
+
+  createdAt DateTime @default(now())
+}
+
+model SiteSettings {
+  id            String   @id @default(cuid())
+
+  siteName      String?
+  heroTitle     String?
+  heroSubtitle  String?
+
+  aboutText     String?  @db.Text
+
+  profileImage  String?
+  resumeUrl     String?
+
+  updatedAt     DateTime @updatedAt
+}
