@@ -2,10 +2,6 @@
 
 import { useEffect, useState } from "react";
 import {
-  motion,
-  AnimatePresence,
-} from "framer-motion";
-import {
   Menu,
   X,
 } from "lucide-react";
@@ -24,14 +20,9 @@ const links = [
 ];
 
 export default function Navbar() {
-  const [active, setActive] =
-    useState("hero");
-
-  const [open, setOpen] =
-    useState(false);
-
-  const [scrolled, setScrolled] =
-    useState(false);
+  const [active, setActive] = useState("hero");
+  const [open, setOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
 
   useEffect(() => {
     function handleScroll() {
@@ -44,9 +35,7 @@ export default function Navbar() {
 
       links.forEach((link) => {
         const section =
-          document.getElementById(
-            link.id
-          );
+          document.getElementById(link.id);
 
         if (!section) return;
 
@@ -58,8 +47,7 @@ export default function Navbar() {
 
         if (
           scrollPosition >= top &&
-          scrollPosition <
-            top + height
+          scrollPosition < top + height
         ) {
           currentSection =
             link.id;
@@ -142,18 +130,7 @@ export default function Navbar() {
   return (
     <>
       {/* Navbar */}
-      <motion.nav
-        initial={{
-          y: -20,
-          opacity: 0,
-        }}
-        animate={{
-          y: 0,
-          opacity: 1,
-        }}
-        transition={{
-          duration: 0.5,
-        }}
+      <nav
         className="
           fixed
           left-1/2
@@ -162,6 +139,7 @@ export default function Navbar() {
           w-[calc(100%-2rem)]
           max-w-7xl
           -translate-x-1/2
+
           sm:top-5
         "
       >
@@ -175,33 +153,33 @@ export default function Navbar() {
             border
             px-4
             py-3
-            backdrop-blur-2xl
             transition-all
             duration-300
+
             sm:px-6
 
             ${
               scrolled
                 ? `
-                  border-black/10
-                  bg-white/85
-                  shadow-[0_0_30px_rgba(0,0,0,0.10)]
+                    border-black/10
+                    bg-white/95
+                    shadow-lg
 
-                  dark:border-white/10
-                  dark:bg-black/80
-                  dark:shadow-[0_0_30px_rgba(0,0,0,0.5)]
-                `
+                    dark:border-white/10
+                    dark:bg-black/95
+                    dark:shadow-2xl
+                  `
                 : `
-                  border-black/10
-                  bg-white/70
+                    border-black/10
+                    bg-white/90
 
-                  dark:border-white/10
-                  dark:bg-black/40
-                `
+                    dark:border-white/10
+                    dark:bg-black/90
+                  `
             }
           `}
         >
-          {/* Logo - Left */}
+          {/* Logo */}
           <button
             type="button"
             onClick={() =>
@@ -220,63 +198,49 @@ export default function Navbar() {
               Kirushanth
             </span>
 
-            <div className="absolute -bottom-1 left-0 h-[2px] w-full bg-cyan-400 opacity-60 blur-sm" />
+            <div className="absolute -bottom-1 left-0 h-[2px] w-full bg-cyan-400 opacity-60" />
           </button>
 
           {/* Desktop Menu */}
           <div className="mx-auto hidden items-center justify-center gap-1 md:flex lg:gap-2">
-            {links.map((link) => (
-              <button
-                key={link.id}
-                type="button"
-                onClick={() =>
-                  scrollToSection(
-                    link.id
-                  )
-                }
-                className={`
-                  relative
-                  rounded-full
-                  px-2.5
-                  py-2
-                  text-sm
-                  transition-colors
+            {links.map((link) => {
+              const isActive =
+                active === link.id;
 
-                  lg:px-3
-                  lg:text-[15px]
-
-                  xl:px-4
-                  xl:text-base
-
-                  ${
-                    active === link.id
-                      ? "text-cyan-600 dark:text-cyan-400"
-                      : "text-gray-700 hover:text-cyan-600 dark:text-gray-300 dark:hover:text-cyan-400"
+              return (
+                <button
+                  key={link.id}
+                  type="button"
+                  onClick={() =>
+                    scrollToSection(
+                      link.id
+                    )
                   }
-                `}
-              >
-                {active ===
-                  link.id && (
-                  <motion.span
-                    layoutId="active-pill"
-                    className="
-                      absolute
-                      inset-0
-                      -z-10
-                      rounded-full
-                      bg-cyan-500/10
-                    "
-                    transition={{
-                      type: "spring",
-                      stiffness: 350,
-                      damping: 30,
-                    }}
-                  />
-                )}
+                  className={`
+                    relative
+                    rounded-full
+                    px-2.5
+                    py-2
+                    text-sm
+                    transition-colors
 
-                {link.label}
-              </button>
-            ))}
+                    lg:px-3
+                    lg:text-[15px]
+
+                    xl:px-4
+                    xl:text-base
+
+                    ${
+                      isActive
+                        ? "bg-cyan-500/10 text-cyan-600 dark:text-cyan-400"
+                        : "text-gray-700 hover:bg-black/5 hover:text-cyan-600 dark:text-gray-300 dark:hover:bg-white/5 dark:hover:text-cyan-400"
+                    }
+                  `}
+                >
+                  {link.label}
+                </button>
+              );
+            })}
           </div>
 
           {/* Desktop Theme Toggle */}
@@ -322,8 +286,7 @@ export default function Navbar() {
                 border-black/10
                 bg-black/5
                 text-cyan-600
-                transition
-                hover:border-cyan-400/40
+                transition-colors
 
                 dark:border-white/10
                 dark:bg-white/5
@@ -338,90 +301,69 @@ export default function Navbar() {
             </button>
           </div>
         </div>
-      </motion.nav>
+      </nav>
 
       {/* Mobile Dropdown */}
-      <AnimatePresence>
-        {open && (
-          <motion.div
-            initial={{
-              opacity: 0,
-              y: -15,
-              scale: 0.98,
-            }}
-            animate={{
-              opacity: 1,
-              y: 0,
-              scale: 1,
-            }}
-            exit={{
-              opacity: 0,
-              y: -15,
-              scale: 0.98,
-            }}
-            transition={{
-              duration: 0.2,
-            }}
-            className="
-              fixed
-              left-4
-              right-4
-              top-20
-              z-40
-              max-h-[75vh]
-              overflow-y-auto
-              rounded-3xl
-              border
-              border-black/10
-              bg-white/95
-              p-4
-              shadow-2xl
-              backdrop-blur-2xl
+      {open && (
+        <div
+          className="
+            fixed
+            left-4
+            right-4
+            top-20
+            z-40
+            max-h-[75vh]
+            overflow-y-auto
+            rounded-3xl
+            border
+            border-black/10
+            bg-white
+            p-4
+            shadow-2xl
 
-              dark:border-white/10
-              dark:bg-black/95
+            dark:border-white/10
+            dark:bg-black
 
-              sm:left-6
-              sm:right-6
-              sm:top-24
+            sm:left-6
+            sm:right-6
+            sm:top-24
 
-              md:hidden
-            "
-          >
-            <div className="flex flex-col gap-2">
-              {links.map((link) => (
-                <button
-                  key={link.id}
-                  type="button"
-                  onClick={() =>
-                    scrollToSection(
-                      link.id
-                    )
+            md:hidden
+          "
+        >
+          <div className="flex flex-col gap-2">
+            {links.map((link) => (
+              <button
+                key={link.id}
+                type="button"
+                onClick={() =>
+                  scrollToSection(
+                    link.id
+                  )
+                }
+                className={`
+                  rounded-xl
+                  px-4
+                  py-3
+                  text-left
+                  text-sm
+                  font-medium
+                  transition-colors
+
+                  ${
+                    active ===
+                    link.id
+                      ? "bg-cyan-500/10 text-cyan-600 dark:text-cyan-400"
+                      : "text-gray-700 hover:bg-black/5 hover:text-black dark:text-gray-300 dark:hover:bg-white/5 dark:hover:text-white"
                   }
-                  className={`
-                    rounded-xl
-                    px-4
-                    py-3
-                    text-left
-                    text-sm
-                    font-medium
-                    transition-all
-
-                    ${
-                      active ===
-                      link.id
-                        ? "bg-cyan-500/10 text-cyan-600 dark:text-cyan-400"
-                        : "text-gray-700 hover:bg-black/5 hover:text-black dark:text-gray-300 dark:hover:bg-white/5 dark:hover:text-white"
-                    }
-                  `}
-                >
-                  {link.label}
-                </button>
-              ))}
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+                `}
+              >
+                {link.label}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
     </>
   );
 }

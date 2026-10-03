@@ -1,8 +1,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { motion } from "framer-motion";
-import { TypeAnimation } from "react-type-animation";
 import { ArrowRight, Download } from "lucide-react";
 import {
   FaGithub,
@@ -48,121 +46,141 @@ async function downloadCv(url: string) {
     }
 
     const blob = await response.blob();
+    const blobUrl =
+      window.URL.createObjectURL(blob);
 
-    const blobUrl = window.URL.createObjectURL(blob);
-
-    const link = document.createElement("a");
+    const link =
+      document.createElement("a");
 
     link.href = blobUrl;
     link.download = "Kirushanth-CV.pdf";
 
     document.body.appendChild(link);
-
     link.click();
-
     document.body.removeChild(link);
 
     window.URL.revokeObjectURL(blobUrl);
   } catch (error) {
-    console.error("CV DOWNLOAD ERROR:", error);
+    console.error(
+      "CV DOWNLOAD ERROR:",
+      error
+    );
   }
 }
 
 export default function Hero() {
-  const [settings, setSettings] = useState<SiteSettings>({
-    siteName: "Kirushanth",
-    heroTitle: "Intern Software Engineer",
-    heroSubtitle:
-      "Intern Software Engineer focused on building modern web applications, scalable software solutions, and practical digital products.",
-    profileImage: "",
-    resumeUrl: "",
-  });
+  const [settings, setSettings] =
+    useState<SiteSettings>({
+      siteName: "Kirushanth",
+      heroTitle:
+        "Intern Software Engineer",
+      heroSubtitle:
+        "Intern Software Engineer focused on building modern web applications, scalable software solutions, and practical digital products.",
+      profileImage: "",
+      resumeUrl: "",
+    });
 
-  const [socialLinks, setSocialLinks] = useState<SocialLink[]>([]);
+  const [socialLinks, setSocialLinks] =
+    useState<SocialLink[]>([]);
 
   useEffect(() => {
+    let active = true;
+
     async function loadData() {
       try {
-        const [settingsRes, socialRes] = await Promise.all([
-          fetch("/api/site-settings", {
+        const settingsRes = await fetch(
+          "/api/site-settings",
+          {
             method: "GET",
             cache: "no-store",
-          }),
+          }
+        );
 
-          fetch("/api/social-links", {
-            method: "GET",
-            cache: "no-store",
-          }),
-        ]);
-
-        if (settingsRes.ok) {
-          const data = await settingsRes.json();
+        if (
+          active &&
+          settingsRes.ok
+        ) {
+          const data =
+            await settingsRes.json();
 
           setSettings((prev) => ({
-            siteName: data.siteName || prev.siteName,
-            heroTitle: data.heroTitle || prev.heroTitle,
+            siteName:
+              data.siteName ||
+              prev.siteName,
+
+            heroTitle:
+              data.heroTitle ||
+              prev.heroTitle,
+
             heroSubtitle:
-              data.heroSubtitle || prev.heroSubtitle,
+              data.heroSubtitle ||
+              prev.heroSubtitle,
+
             profileImage:
-              data.profileImage || prev.profileImage,
+              data.profileImage ||
+              prev.profileImage,
+
             resumeUrl:
-              data.resumeUrl || prev.resumeUrl,
+              data.resumeUrl ||
+              prev.resumeUrl,
           }));
         }
+      } catch (error) {
+        console.error(
+          "SITE SETTINGS LOAD ERROR:",
+          error
+        );
+      }
 
-        if (socialRes.ok) {
-          const data = await socialRes.json();
+      try {
+        const socialRes = await fetch(
+          "/api/social-links",
+          {
+            method: "GET",
+            cache: "no-store",
+          }
+        );
+
+        if (
+          active &&
+          socialRes.ok
+        ) {
+          const data =
+            await socialRes.json();
 
           if (Array.isArray(data)) {
             setSocialLinks(data);
           }
         }
       } catch (error) {
-        console.error("HERO DATA LOAD ERROR:", error);
+        console.error(
+          "SOCIAL LINKS LOAD ERROR:",
+          error
+        );
       }
     }
 
     loadData();
+
+    return () => {
+      active = false;
+    };
   }, []);
 
-  const containerVariants = {
-    hidden: {
-      opacity: 0,
-    },
-
-    visible: {
-      opacity: 1,
-
-      transition: {
-        staggerChildren: 0.15,
-        delayChildren: 0.2,
-      },
-    },
-  };
-
-  const itemVariants = {
-    hidden: {
-      y: 20,
-      opacity: 0,
-    },
-
-    visible: {
-      y: 0,
-      opacity: 1,
-    },
-  };
-
   const socialClass = `
-    flex h-12 w-12
-    items-center justify-center
+    flex
+    h-12
+    w-12
+    items-center
+    justify-center
     rounded-full
-    border border-black/10
+    border
+    border-black/10
     bg-black/5
     text-gray-600
-    backdrop-blur-md
-    transition-all duration-300
+    transition-colors
+    duration-300
 
-    hover:-translate-y-1
     hover:border-cyan-400/50
     hover:text-cyan-500
 
@@ -174,7 +192,8 @@ export default function Hero() {
   `;
 
   const name =
-    settings.siteName?.trim() || "Kirushanth";
+    settings.siteName?.trim() ||
+    "Kirushanth";
 
   const heroTitle =
     settings.heroTitle?.trim() ||
@@ -184,10 +203,11 @@ export default function Hero() {
     settings.heroSubtitle?.trim() ||
     "Intern Software Engineer focused on building modern web applications, scalable software solutions, and practical digital products.";
 
-  function getSocialIcon(platform: string) {
-    const normalized = platform
-      .toLowerCase()
-      .trim();
+  function getSocialIcon(
+    platform: string
+  ) {
+    const normalized =
+      platform.toLowerCase().trim();
 
     if (
       normalized === "github" ||
@@ -211,15 +231,21 @@ export default function Hero() {
       return <FaXTwitter size={22} />;
     }
 
-    if (normalized.includes("facebook")) {
+    if (
+      normalized.includes("facebook")
+    ) {
       return <FaFacebook size={22} />;
     }
 
-    if (normalized.includes("instagram")) {
+    if (
+      normalized.includes("instagram")
+    ) {
       return <FaInstagram size={22} />;
     }
 
-    if (normalized.includes("youtube")) {
+    if (
+      normalized.includes("youtube")
+    ) {
       return <FaYoutube size={22} />;
     }
 
@@ -230,41 +256,40 @@ export default function Hero() {
     <section
       id="hero"
       className="
-    relative
-    flex
-    min-h-screen
-    items-center
-    justify-center
-    overflow-hidden
-    bg-white
-    px-4
+        relative
+        flex
+        min-h-screen
+        items-center
+        justify-center
+        overflow-hidden
+        bg-white
+        px-4
+        pb-20
+        pt-32
+        text-gray-900
+        transition-colors
+        duration-300
 
-    pt-32
-    pb-20
+        dark:bg-[#050505]
+        dark:text-white
 
-    sm:px-6
-    sm:pt-36
-
-    text-gray-900
-    transition-colors
-    duration-300
-
-    dark:bg-[#050505]
-    dark:text-white
-  "
+        sm:px-6
+        sm:pt-36
+      "
     >
-      <ParticleBackground />
-      <FloatingShapes />
-
-      <motion.div
-        variants={containerVariants}
-        initial="hidden"
-        animate="visible"
-        className="relative z-10 mx-auto w-full max-w-6xl text-center"
+      {/* Decorative only */}
+      <div
+        aria-hidden="true"
+        className="pointer-events-none"
       >
+        <ParticleBackground />
+        <FloatingShapes />
+      </div>
+
+      {/* Main content is always visible */}
+      <div className="relative z-10 mx-auto w-full max-w-6xl text-center">
         {/* Badge */}
-        <motion.div
-          variants={itemVariants}
+        <div
           className="
             mx-auto
             mb-8
@@ -278,7 +303,6 @@ export default function Hero() {
             text-xs
             font-medium
             text-cyan-600
-            backdrop-blur-xl
 
             dark:text-cyan-400
 
@@ -287,12 +311,11 @@ export default function Hero() {
           "
         >
           🟢 Available for New Opportunities
-        </motion.div>
+        </div>
 
         {/* Profile Image */}
         {settings.profileImage && (
-          <motion.div
-            variants={itemVariants}
+          <div
             className="
               mx-auto
               mb-7
@@ -304,7 +327,6 @@ export default function Hero() {
               border-cyan-500/30
               bg-black/5
               p-1
-              shadow-[0_0_35px_rgba(34,211,238,0.15)]
 
               dark:border-cyan-400/30
               dark:bg-white/5
@@ -318,12 +340,11 @@ export default function Hero() {
               alt={`${name} profile`}
               className="h-full w-full rounded-full object-cover"
             />
-          </motion.div>
+          </div>
         )}
 
         {/* Intro */}
-        <motion.p
-          variants={itemVariants}
+        <p
           className="
             text-xs
             font-semibold
@@ -338,11 +359,10 @@ export default function Hero() {
           "
         >
           Hello, I&apos;m
-        </motion.p>
+        </p>
 
         {/* Name */}
-        <motion.h1
-          variants={itemVariants}
+        <h1
           className="
             mt-5
             break-words
@@ -355,14 +375,13 @@ export default function Hero() {
             md:text-8xl
           "
         >
-          <span className="bg-gradient-to-r from-cyan-400 via-blue-500 to-purple-500 bg-clip-text text-transparent drop-shadow-[0_0_60px_rgba(34,211,238,0.75)]">
+          <span className="text-cyan-500 dark:text-cyan-400">
             {name}
           </span>
-        </motion.h1>
+        </h1>
 
-        {/* Typewriter */}
-        <motion.div
-          variants={itemVariants}
+        {/* Static role - old Safari safe */}
+        <div
           className="
             mt-8
             min-h-12
@@ -376,36 +395,19 @@ export default function Hero() {
             md:text-3xl
           "
         >
-          <TypeAnimation
-            sequence={[
-              heroTitle,
-              2000,
-              "Full Stack Developer",
-              2000,
-              "Building Scalable Software",
-              2000,
-              "Creating Human-Centered Products",
-              2000,
-            ]}
-            speed={50}
-            repeat={Infinity}
-          />
-        </motion.div>
+          {heroTitle}
+        </div>
 
         {/* Divider */}
-        <motion.div
-          variants={itemVariants}
-          className="mx-auto mt-6 h-[2px] w-24 rounded-full bg-gradient-to-r from-transparent via-cyan-400 to-transparent"
-        />
+        <div className="mx-auto mt-6 h-[2px] w-24 rounded-full bg-cyan-400" />
 
         {/* Skills */}
-        <motion.div variants={itemVariants}>
+        <div>
           <SkillChips />
-        </motion.div>
+        </div>
 
         {/* Description */}
-        <motion.p
-          variants={itemVariants}
+        <p
           className="
             mx-auto
             mt-8
@@ -421,11 +423,10 @@ export default function Hero() {
           "
         >
           {heroSubtitle}
-        </motion.p>
+        </p>
 
         {/* Buttons */}
-        <motion.div
-          variants={itemVariants}
+        <div
           className="
             mt-10
             flex
@@ -442,34 +443,27 @@ export default function Hero() {
           <a
             href="#projects"
             className="
-              group
               flex
               w-full
               items-center
               justify-center
               gap-2
               rounded-full
-              bg-gradient-to-r
-              from-cyan-400
-              via-blue-500
-              to-purple-500
+              bg-cyan-500
               px-8
               py-4
               font-bold
               text-white
-              shadow-[0_0_30px_rgba(34,211,238,0.35)]
-              transition-all
-              duration-300
+              transition-colors
 
-              hover:scale-105
-              hover:shadow-[0_0_45px_rgba(34,211,238,0.55)]
+              hover:bg-cyan-600
 
               sm:w-auto
             "
           >
             View My Work
 
-            <ArrowRight className="h-5 w-5 transition-transform duration-300 group-hover:translate-x-1" />
+            <ArrowRight className="h-5 w-5" />
           </a>
 
           <a
@@ -484,17 +478,13 @@ export default function Hero() {
               py-4
               font-bold
               text-gray-900
-              backdrop-blur-md
-              transition-all
-              duration-300
+              transition-colors
 
-              hover:border-cyan-400/50
               hover:bg-black/10
 
               dark:border-white/10
               dark:bg-white/5
               dark:text-white
-              dark:hover:border-white/20
               dark:hover:bg-white/10
 
               sm:w-auto
@@ -504,71 +494,72 @@ export default function Hero() {
           </a>
 
           {settings.resumeUrl && (
-  <button
-    type="button"
-    onClick={() =>
-      downloadCv(settings.resumeUrl!)
-    }
-    className="
-      flex
-      w-full
-      items-center
-      justify-center
-      gap-2
-      rounded-full
-      border
-      border-cyan-500/30
-      bg-cyan-500/5
-      px-8
-      py-4
-      font-bold
-      text-cyan-600
-      transition-all
-      duration-300
+            <button
+              type="button"
+              onClick={() =>
+                downloadCv(
+                  settings.resumeUrl!
+                )
+              }
+              className="
+                flex
+                w-full
+                items-center
+                justify-center
+                gap-2
+                rounded-full
+                border
+                border-cyan-500/30
+                bg-cyan-500/5
+                px-8
+                py-4
+                font-bold
+                text-cyan-600
+                transition-colors
 
-      hover:border-cyan-500/60
-      hover:bg-cyan-500/10
+                hover:bg-cyan-500/10
 
-      dark:border-cyan-400/20
-      dark:bg-cyan-400/5
-      dark:text-cyan-400
-      dark:hover:border-cyan-400/50
-      dark:hover:bg-cyan-400/10
+                dark:border-cyan-400/20
+                dark:bg-cyan-400/5
+                dark:text-cyan-400
+                dark:hover:bg-cyan-400/10
 
-      sm:w-auto
-    "
-  >
-    <Download size={18} />
-    Download CV
-  </button>
-)}
-        </motion.div>
+                sm:w-auto
+              "
+            >
+              <Download size={18} />
+              Download CV
+            </button>
+          )}
+        </div>
 
-        {/* Dynamic Social Links */}
+        {/* Social Links */}
         {socialLinks.length > 0 && (
-          <motion.div
-            variants={itemVariants}
-            className="mt-12 flex flex-wrap justify-center gap-4 sm:gap-6"
-          >
-            {socialLinks.map((social) => (
-              <a
-                key={social.id}
-                href={social.url}
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label={social.platform}
-                title={social.platform}
-                className={socialClass}
-              >
-                {getSocialIcon(social.platform)}
-              </a>
-            ))}
-          </motion.div>
+          <div className="mt-12 flex flex-wrap justify-center gap-4 sm:gap-6">
+            {socialLinks.map(
+              (social) => (
+                <a
+                  key={social.id}
+                  href={social.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label={
+                    social.platform
+                  }
+                  title={social.platform}
+                  className={socialClass}
+                >
+                  {getSocialIcon(
+                    social.platform
+                  )}
+                </a>
+              )
+            )}
+          </div>
         )}
-      </motion.div>
+      </div>
 
-      {/* Bottom Glow Line */}
-      <div className="absolute bottom-10 left-1/2 h-[1px] w-full -translate-x-1/2 bg-gradient-to-r from-transparent via-cyan-500/20 to-transparent" />
+      <div className="absolute bottom-10 left-1/2 h-px w-full -translate-x-1/2 bg-cyan-500/20" />
 
       <ScrollIndicator />
     </section>
