@@ -1,90 +1,55 @@
-"use client";
-
-import { useEffect, useState } from "react";
+import { prisma } from "@/lib/prisma";
 import { Quote, Star } from "lucide-react";
 
 interface Testimonial {
   id: string;
   name: string;
   role: string;
-  company?: string | null;
+  company: string | null;
   review: string;
-  imageUrl?: string | null;
+  imageUrl: string | null;
   featured: boolean;
-  status?: string;
+  status: string;
 }
 
-export default function Testimonials() {
-  const [testimonials, setTestimonials] =
-    useState<Testimonial[]>([]);
+export const dynamic = "force-dynamic";
 
-  const [loading, setLoading] =
-    useState(true);
+export default async function Testimonials() {
+  let testimonials: Testimonial[] = [];
+  let error = "";
 
-  const [error, setError] =
-    useState("");
+  try {
+    testimonials = await prisma.testimonial.findMany({
+      where: {
+        status: "approved",
+      },
+      orderBy: [
+        {
+          featured: "desc",
+        },
+        {
+          createdAt: "desc",
+        },
+      ],
+      select: {
+        id: true,
+        name: true,
+        role: true,
+        company: true,
+        review: true,
+        imageUrl: true,
+        featured: true,
+        status: true,
+      },
+    });
+  } catch (err) {
+    console.error(
+      "TESTIMONIALS LOAD ERROR:",
+      err
+    );
 
-  useEffect(() => {
-    let active = true;
-
-    async function loadTestimonials() {
-      try {
-        setLoading(true);
-        setError("");
-
-        const res = await fetch(
-          "/api/testimonials",
-          {
-            method: "GET",
-            cache: "no-store",
-          }
-        );
-
-        if (!res.ok) {
-          throw new Error(
-            `Failed to fetch testimonials: ${res.status}`
-          );
-        }
-
-        const data = await res.json();
-
-        if (!Array.isArray(data)) {
-          throw new Error(
-            "Testimonials API did not return an array"
-          );
-        }
-
-        if (active) {
-          setTestimonials(data);
-        }
-      } catch (err) {
-        console.error(
-          "TESTIMONIALS LOAD ERROR:",
-          err
-        );
-
-        if (active) {
-          setError(
-            err instanceof Error
-              ? err.message
-              : "Failed to load testimonials"
-          );
-
-          setTestimonials([]);
-        }
-      } finally {
-        if (active) {
-          setLoading(false);
-        }
-      }
-    }
-
-    loadTestimonials();
-
-    return () => {
-      active = false;
-    };
-  }, []);
+    error = "Failed to load testimonials";
+  }
 
   return (
     <section
@@ -129,29 +94,17 @@ export default function Testimonials() {
           <div className="mx-auto mt-5 h-[2px] w-24 bg-cyan-400" />
         </div>
 
-        {/* Loading */}
-        {loading && (
-          <div className="text-center text-gray-600 dark:text-gray-400">
-            Loading testimonials...
-          </div>
-        )}
-
         {/* Error */}
-        {!loading && error && (
+        {error && (
           <div className="text-center">
             <p className="text-red-500 dark:text-red-400">
               Failed to load testimonials.
-            </p>
-
-            <p className="mt-2 text-sm text-gray-500">
-              {error}
             </p>
           </div>
         )}
 
         {/* Empty */}
-        {!loading &&
-          !error &&
+        {!error &&
           testimonials.length === 0 && (
             <div className="text-center text-gray-600 dark:text-gray-400">
               No testimonials found.
@@ -159,8 +112,7 @@ export default function Testimonials() {
           )}
 
         {/* Cards */}
-        {!loading &&
-          !error &&
+        {!error &&
           testimonials.length > 0 && (
             <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
               {testimonials.map(
@@ -178,9 +130,7 @@ export default function Testimonials() {
                       transition-all
                       duration-300
 
-                      hover:-translate-y-2
                       hover:border-cyan-400/40
-                      hover:shadow-[0_18px_50px_rgba(34,211,238,0.08)]
 
                       dark:border-white/10
                       dark:bg-white/5

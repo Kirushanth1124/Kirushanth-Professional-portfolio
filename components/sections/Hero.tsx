@@ -1,7 +1,9 @@
-"use client";
+import { prisma } from "@/lib/prisma";
+import {
+  ArrowRight,
+  Download,
+} from "lucide-react";
 
-import { useEffect, useState } from "react";
-import { ArrowRight, Download } from "lucide-react";
 import {
   FaGithub,
   FaLinkedin,
@@ -16,156 +18,125 @@ import FloatingShapes from "@/components/hero/FloatingShapes";
 import SkillChips from "@/components/hero/SkillChips";
 import ScrollIndicator from "@/components/hero/ScrollIndicator";
 
-interface SiteSettings {
-  siteName?: string | null;
-  heroTitle?: string | null;
-  heroSubtitle?: string | null;
-  profileImage?: string | null;
-  resumeUrl?: string | null;
-}
-
 interface SocialLink {
   id: string;
   platform: string;
   url: string;
-  icon?: string | null;
+  icon: string | null;
 }
 
-async function downloadCv(url: string) {
+export const dynamic = "force-dynamic";
+
+function getSocialIcon(platform: string) {
+  const normalized =
+    platform.toLowerCase().trim();
+
+  if (normalized.includes("github")) {
+    return <FaGithub size={22} />;
+  }
+
+  if (normalized.includes("linkedin")) {
+    return <FaLinkedin size={22} />;
+  }
+
+  if (
+    normalized === "x" ||
+    normalized === "twitter" ||
+    normalized.includes("twitter")
+  ) {
+    return <FaXTwitter size={22} />;
+  }
+
+  if (normalized.includes("facebook")) {
+    return <FaFacebook size={22} />;
+  }
+
+  if (normalized.includes("instagram")) {
+    return <FaInstagram size={22} />;
+  }
+
+  if (normalized.includes("youtube")) {
+    return <FaYoutube size={22} />;
+  }
+
+  return <ArrowRight size={20} />;
+}
+
+export default async function Hero() {
+  let name = "Kirushanth";
+
+  let heroTitle =
+    "Intern Software Engineer";
+
+  let heroSubtitle =
+    "Intern Software Engineer focused on building modern web applications, scalable software solutions, and practical digital products.";
+
+  let profileImage = "";
+  let resumeUrl = "";
+
+  let socialLinks: SocialLink[] = [];
+
   try {
-    const separator = url.includes("?") ? "&" : "?";
-    const freshUrl = `${url}${separator}t=${Date.now()}`;
+    const settings =
+      await prisma.siteSettings.findFirst({
+        select: {
+          siteName: true,
+          heroTitle: true,
+          heroSubtitle: true,
+          profileImage: true,
+          resumeUrl: true,
+        },
+      });
 
-    const response = await fetch(freshUrl, {
-      method: "GET",
-      cache: "no-store",
-    });
+    if (settings) {
+      name =
+        settings.siteName?.trim() ||
+        name;
 
-    if (!response.ok) {
-      throw new Error("Failed to download CV");
+      heroTitle =
+        settings.heroTitle?.trim() ||
+        heroTitle;
+
+      heroSubtitle =
+        settings.heroSubtitle?.trim() ||
+        heroSubtitle;
+
+      profileImage =
+        settings.profileImage?.trim() ||
+        "";
+
+      resumeUrl =
+        settings.resumeUrl?.trim() ||
+        "";
     }
-
-    const blob = await response.blob();
-    const blobUrl =
-      window.URL.createObjectURL(blob);
-
-    const link =
-      document.createElement("a");
-
-    link.href = blobUrl;
-    link.download = "Kirushanth-CV.pdf";
-
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-
-    window.URL.revokeObjectURL(blobUrl);
   } catch (error) {
     console.error(
-      "CV DOWNLOAD ERROR:",
+      "HERO SETTINGS LOAD ERROR:",
       error
     );
   }
-}
 
-export default function Hero() {
-  const [settings, setSettings] =
-    useState<SiteSettings>({
-      siteName: "Kirushanth",
-      heroTitle:
-        "Intern Software Engineer",
-      heroSubtitle:
-        "Intern Software Engineer focused on building modern web applications, scalable software solutions, and practical digital products.",
-      profileImage: "",
-      resumeUrl: "",
-    });
+  try {
+    socialLinks =
+      await prisma.socialLink.findMany({
+        orderBy: {
+          createdAt: "asc",
+        },
+        select: {
+          id: true,
+          platform: true,
+          url: true,
+          icon: true,
+        },
+      });
+  } catch (error) {
+    console.error(
+      "SOCIAL LINKS LOAD ERROR:",
+      error
+    );
 
-  const [socialLinks, setSocialLinks] =
-    useState<SocialLink[]>([]);
-
-  useEffect(() => {
-    let active = true;
-
-    async function loadData() {
-      try {
-        const settingsRes = await fetch(
-          "/api/site-settings",
-          {
-            method: "GET",
-            cache: "no-store",
-          }
-        );
-
-        if (
-          active &&
-          settingsRes.ok
-        ) {
-          const data =
-            await settingsRes.json();
-
-          setSettings((prev) => ({
-            siteName:
-              data.siteName ||
-              prev.siteName,
-
-            heroTitle:
-              data.heroTitle ||
-              prev.heroTitle,
-
-            heroSubtitle:
-              data.heroSubtitle ||
-              prev.heroSubtitle,
-
-            profileImage:
-              data.profileImage ||
-              prev.profileImage,
-
-            resumeUrl:
-              data.resumeUrl ||
-              prev.resumeUrl,
-          }));
-        }
-      } catch (error) {
-        console.error(
-          "SITE SETTINGS LOAD ERROR:",
-          error
-        );
-      }
-
-      try {
-        const socialRes = await fetch(
-          "/api/social-links",
-          {
-            method: "GET",
-            cache: "no-store",
-          }
-        );
-
-        if (
-          active &&
-          socialRes.ok
-        ) {
-          const data =
-            await socialRes.json();
-
-          if (Array.isArray(data)) {
-            setSocialLinks(data);
-          }
-        }
-      } catch (error) {
-        console.error(
-          "SOCIAL LINKS LOAD ERROR:",
-          error
-        );
-      }
-    }
-
-    loadData();
-
-    return () => {
-      active = false;
-    };
-  }, []);
+    socialLinks = [];
+  }
 
   const socialClass = `
     flex
@@ -190,67 +161,6 @@ export default function Hero() {
     dark:hover:border-cyan-400/40
     dark:hover:text-cyan-400
   `;
-
-  const name =
-    settings.siteName?.trim() ||
-    "Kirushanth";
-
-  const heroTitle =
-    settings.heroTitle?.trim() ||
-    "Intern Software Engineer";
-
-  const heroSubtitle =
-    settings.heroSubtitle?.trim() ||
-    "Intern Software Engineer focused on building modern web applications, scalable software solutions, and practical digital products.";
-
-  function getSocialIcon(
-    platform: string
-  ) {
-    const normalized =
-      platform.toLowerCase().trim();
-
-    if (
-      normalized === "github" ||
-      normalized.includes("github")
-    ) {
-      return <FaGithub size={22} />;
-    }
-
-    if (
-      normalized === "linkedin" ||
-      normalized.includes("linkedin")
-    ) {
-      return <FaLinkedin size={22} />;
-    }
-
-    if (
-      normalized === "x" ||
-      normalized === "twitter" ||
-      normalized.includes("twitter")
-    ) {
-      return <FaXTwitter size={22} />;
-    }
-
-    if (
-      normalized.includes("facebook")
-    ) {
-      return <FaFacebook size={22} />;
-    }
-
-    if (
-      normalized.includes("instagram")
-    ) {
-      return <FaInstagram size={22} />;
-    }
-
-    if (
-      normalized.includes("youtube")
-    ) {
-      return <FaYoutube size={22} />;
-    }
-
-    return <ArrowRight size={20} />;
-  }
 
   return (
     <section
@@ -277,7 +187,7 @@ export default function Hero() {
         sm:pt-36
       "
     >
-      {/* Decorative only */}
+      {/* Decorative Background */}
       <div
         aria-hidden="true"
         className="pointer-events-none"
@@ -286,7 +196,7 @@ export default function Hero() {
         <FloatingShapes />
       </div>
 
-      {/* Main content is always visible */}
+      {/* Main Content */}
       <div className="relative z-10 mx-auto w-full max-w-6xl text-center">
         {/* Badge */}
         <div
@@ -314,7 +224,7 @@ export default function Hero() {
         </div>
 
         {/* Profile Image */}
-        {settings.profileImage && (
+        {profileImage && (
           <div
             className="
               mx-auto
@@ -336,7 +246,7 @@ export default function Hero() {
             "
           >
             <img
-              src={settings.profileImage}
+              src={profileImage}
               alt={`${name} profile`}
               className="h-full w-full rounded-full object-cover"
             />
@@ -380,7 +290,7 @@ export default function Hero() {
           </span>
         </h1>
 
-        {/* Static role - old Safari safe */}
+        {/* Role */}
         <div
           className="
             mt-8
@@ -401,7 +311,7 @@ export default function Hero() {
         {/* Divider */}
         <div className="mx-auto mt-6 h-[2px] w-24 rounded-full bg-cyan-400" />
 
-        {/* Skills */}
+        {/* Skill Chips */}
         <div>
           <SkillChips />
         </div>
@@ -440,6 +350,7 @@ export default function Hero() {
             sm:gap-5
           "
         >
+          {/* Native Anchor */}
           <a
             href="#projects"
             className="
@@ -466,6 +377,7 @@ export default function Hero() {
             <ArrowRight className="h-5 w-5" />
           </a>
 
+          {/* Native Anchor */}
           <a
             href="#contact"
             className="
@@ -493,14 +405,11 @@ export default function Hero() {
             Get In Touch
           </a>
 
-          {settings.resumeUrl && (
-            <button
-              type="button"
-              onClick={() =>
-                downloadCv(
-                  settings.resumeUrl!
-                )
-              }
+          {/* Native CV Link */}
+          {resumeUrl && (
+            <a
+              href={resumeUrl}
+              download
               className="
                 flex
                 w-full
@@ -528,38 +437,35 @@ export default function Hero() {
               "
             >
               <Download size={18} />
+
               Download CV
-            </button>
+            </a>
           )}
         </div>
 
         {/* Social Links */}
         {socialLinks.length > 0 && (
           <div className="mt-12 flex flex-wrap justify-center gap-4 sm:gap-6">
-            {socialLinks.map(
-              (social) => (
-                <a
-                  key={social.id}
-                  href={social.url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  aria-label={
-                    social.platform
-                  }
-                  title={social.platform}
-                  className={socialClass}
-                >
-                  {getSocialIcon(
-                    social.platform
-                  )}
-                </a>
-              )
-            )}
+            {socialLinks.map((social) => (
+              <a
+                key={social.id}
+                href={social.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label={social.platform}
+                title={social.platform}
+                className={socialClass}
+              >
+                {getSocialIcon(
+                  social.platform
+                )}
+              </a>
+            ))}
           </div>
         )}
       </div>
 
-      <div className="absolute bottom-10 left-1/2 h-px w-full -translate-x-1/2 bg-cyan-500/20" />
+      <div className="pointer-events-none absolute bottom-10 left-1/2 h-px w-full -translate-x-1/2 bg-cyan-500/20" />
 
       <ScrollIndicator />
     </section>

@@ -1,6 +1,4 @@
-"use client";
-
-import { useEffect, useState } from "react";
+import { prisma } from "@/lib/prisma";
 import {
   Award,
   ExternalLink,
@@ -11,81 +9,39 @@ interface Certificate {
   title: string;
   issuer: string;
   issuedDate: string;
-  credential?: string | null;
-  imageUrl?: string | null;
+  credential: string | null;
+  imageUrl: string | null;
 }
 
-export default function Certificates() {
-  const [certificates, setCertificates] =
-    useState<Certificate[]>([]);
+export const dynamic = "force-dynamic";
 
-  const [loading, setLoading] =
-    useState(true);
+export default async function Certificates() {
+  let certificates: Certificate[] = [];
+  let error = "";
 
-  const [error, setError] =
-    useState("");
+  try {
+    certificates =
+      await prisma.certificate.findMany({
+        orderBy: {
+          createdAt: "desc",
+        },
+        select: {
+          id: true,
+          title: true,
+          issuer: true,
+          issuedDate: true,
+          credential: true,
+          imageUrl: true,
+        },
+      });
+  } catch (err) {
+    console.error(
+      "CERTIFICATES LOAD ERROR:",
+      err
+    );
 
-  useEffect(() => {
-    let active = true;
-
-    async function loadCertificates() {
-      try {
-        setLoading(true);
-        setError("");
-
-        const res = await fetch(
-          "/api/certificates",
-          {
-            method: "GET",
-            cache: "no-store",
-          }
-        );
-
-        if (!res.ok) {
-          throw new Error(
-            `Failed to fetch certificates: ${res.status}`
-          );
-        }
-
-        const data = await res.json();
-
-        if (!Array.isArray(data)) {
-          throw new Error(
-            "Certificates API did not return an array"
-          );
-        }
-
-        if (active) {
-          setCertificates(data);
-        }
-      } catch (err) {
-        console.error(
-          "CERTIFICATES LOAD ERROR:",
-          err
-        );
-
-        if (active) {
-          setError(
-            err instanceof Error
-              ? err.message
-              : "Failed to load certificates"
-          );
-
-          setCertificates([]);
-        }
-      } finally {
-        if (active) {
-          setLoading(false);
-        }
-      }
-    }
-
-    loadCertificates();
-
-    return () => {
-      active = false;
-    };
-  }, []);
+    error = "Failed to load certificates";
+  }
 
   return (
     <section
@@ -130,29 +86,17 @@ export default function Certificates() {
           <div className="mx-auto mt-5 h-[2px] w-24 bg-cyan-400" />
         </div>
 
-        {/* Loading */}
-        {loading && (
-          <div className="text-center text-gray-600 dark:text-gray-400">
-            Loading certificates...
-          </div>
-        )}
-
         {/* Error */}
-        {!loading && error && (
+        {error && (
           <div className="text-center">
             <p className="text-red-500 dark:text-red-400">
               Failed to load certificates.
-            </p>
-
-            <p className="mt-2 text-sm text-gray-500">
-              {error}
             </p>
           </div>
         )}
 
         {/* Empty */}
-        {!loading &&
-          !error &&
+        {!error &&
           certificates.length === 0 && (
             <div className="text-center text-gray-600 dark:text-gray-400">
               No certificates found.
@@ -160,8 +104,7 @@ export default function Certificates() {
           )}
 
         {/* Certificate Cards */}
-        {!loading &&
-          !error &&
+        {!error &&
           certificates.length > 0 && (
             <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
               {certificates.map(
@@ -178,9 +121,7 @@ export default function Certificates() {
                       transition-all
                       duration-300
 
-                      hover:-translate-y-2
                       hover:border-cyan-400/40
-                      hover:shadow-[0_18px_50px_rgba(34,211,238,0.08)]
 
                       dark:border-white/10
                       dark:bg-white/5
@@ -196,7 +137,7 @@ export default function Certificates() {
                           alt={
                             certificate.title
                           }
-                          className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+                          className="h-full w-full object-cover"
                         />
                       </div>
                     ) : (

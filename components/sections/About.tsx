@@ -1,6 +1,4 @@
-"use client";
-
-import { useEffect, useState } from "react";
+import { prisma } from "@/lib/prisma";
 import {
   Code2,
   Database,
@@ -8,67 +6,39 @@ import {
   BriefcaseBusiness,
 } from "lucide-react";
 
-interface SiteSettings {
-  siteName?: string | null;
-  aboutText?: string | null;
-  profileImage?: string | null;
-}
+export const dynamic = "force-dynamic";
 
-export default function About() {
-  const [settings, setSettings] = useState<SiteSettings>({
-    siteName: "Kirushanth",
-    aboutText:
-      "I am an Intern Software Engineer from Sri Lanka currently working at Inspire Associate. I focus on building full-stack web applications, software solutions, and practical digital products. My goal is to turn real-world problems into modern, scalable, and user-friendly software solutions.",
-    profileImage: "/Kirushanth.png",
-  });
+export default async function About() {
+  let siteName = "Kirushanth";
+  let aboutText =
+    "I am an Intern Software Engineer from Sri Lanka currently working at Inspire Associate. I focus on building full-stack web applications, software solutions, and practical digital products. My goal is to turn real-world problems into modern, scalable, and user-friendly software solutions.";
+  let profileImage = "/Kirushanth.png";
 
-  useEffect(() => {
-    let active = true;
+  try {
+    const settings = await prisma.siteSettings.findFirst({
+      select: {
+        siteName: true,
+        aboutText: true,
+        profileImage: true,
+      },
+    });
 
-    async function loadSettings() {
-      try {
-        const res = await fetch("/api/site-settings", {
-          method: "GET",
-          cache: "no-store",
-        });
+    if (settings) {
+      siteName =
+        settings.siteName?.trim() || siteName;
 
-        if (!res.ok) return;
+      aboutText =
+        settings.aboutText?.trim() || aboutText;
 
-        const data = await res.json();
-
-        if (!active) return;
-
-        setSettings((prev) => ({
-          siteName: data.siteName || prev.siteName,
-          aboutText: data.aboutText || prev.aboutText,
-          profileImage:
-            data.profileImage || prev.profileImage,
-        }));
-      } catch (error) {
-        console.error(
-          "ABOUT SETTINGS LOAD ERROR:",
-          error
-        );
-      }
+      profileImage =
+        settings.profileImage?.trim() || profileImage;
     }
-
-    loadSettings();
-
-    return () => {
-      active = false;
-    };
-  }, []);
-
-  const name =
-    settings.siteName?.trim() || "Kirushanth";
-
-  const aboutText =
-    settings.aboutText?.trim() ||
-    "I am an Intern Software Engineer focused on building modern software solutions.";
-
-  const profileImage =
-    settings.profileImage?.trim() ||
-    "/Kirushanth.png";
+  } catch (err) {
+    console.error(
+      "ABOUT SETTINGS LOAD ERROR:",
+      err
+    );
+  }
 
   const cardClass = `
     rounded-3xl
@@ -79,9 +49,7 @@ export default function About() {
     transition-all
     duration-300
 
-    hover:-translate-y-2
     hover:border-cyan-400/40
-    hover:shadow-[0_20px_50px_rgba(34,211,238,0.08)]
 
     dark:border-white/10
     dark:bg-white/5
@@ -134,10 +102,8 @@ export default function About() {
           {/* Image Side */}
           <div className="flex justify-center lg:justify-start">
             <div className="relative w-[270px] sm:w-[310px] lg:w-[360px]">
-              {/* Glow */}
               <div className="pointer-events-none absolute inset-0 rounded-3xl bg-cyan-500/10 blur-2xl" />
 
-              {/* Image */}
               <div
                 className="
                   relative
@@ -155,7 +121,7 @@ export default function About() {
               >
                 <img
                   src={profileImage}
-                  alt={name}
+                  alt={siteName}
                   className="h-full w-full object-cover object-top"
                 />
               </div>
@@ -165,7 +131,7 @@ export default function About() {
           {/* Content Side */}
           <div className="min-w-0">
             <h3 className="mb-6 text-3xl font-bold text-gray-900 dark:text-white sm:text-4xl">
-              {name}
+              {siteName}
             </h3>
 
             <p className="whitespace-pre-line text-base leading-8 text-gray-600 dark:text-gray-400 sm:text-lg">

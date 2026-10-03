@@ -1,88 +1,38 @@
-"use client";
-
-import { useEffect, useState } from "react";
+import { prisma } from "@/lib/prisma";
 
 interface ExperienceItem {
   id: string;
   year: string;
   title: string;
   company: string;
-  location?: string | null;
+  location: string | null;
   description: string;
 }
 
-export default function Experience() {
-  const [experiences, setExperiences] =
-    useState<ExperienceItem[]>([]);
+export const dynamic = "force-dynamic";
 
-  const [loading, setLoading] =
-    useState(true);
+export default async function Experience() {
+  let experiences: ExperienceItem[] = [];
+  let error = "";
 
-  const [error, setError] =
-    useState("");
-
-  useEffect(() => {
-    let active = true;
-
-    async function fetchExperiences() {
-      try {
-        setLoading(true);
-        setError("");
-
-        const response = await fetch(
-          "/api/experience",
-          {
-            method: "GET",
-            cache: "no-store",
-          }
-        );
-
-        if (!response.ok) {
-          throw new Error(
-            `Failed to fetch experiences: ${response.status}`
-          );
-        }
-
-        const data =
-          await response.json();
-
-        if (!Array.isArray(data)) {
-          throw new Error(
-            "Experience API did not return an array"
-          );
-        }
-
-        if (active) {
-          setExperiences(data);
-        }
-      } catch (err) {
-        console.error(
-          "Failed to load experiences:",
-          err
-        );
-
-        if (active) {
-          setError(
-            err instanceof Error
-              ? err.message
-              : "Failed to load experiences"
-          );
-
-          setExperiences([]);
-        }
-      } finally {
-        if (active) {
-          setLoading(false);
-        }
-      }
-    }
-
-    fetchExperiences();
-
-    return () => {
-      active = false;
-    };
-  }, []);
+  try {
+    experiences = await prisma.experience.findMany({
+      orderBy: {
+        createdAt: "desc",
+      },
+      select: {
+        id: true,
+        year: true,
+        title: true,
+        company: true,
+        location: true,
+        description: true,
+      },
+    });
+  } catch (err) {
+    console.error("EXPERIENCE LOAD ERROR:", err);
+    error = "Failed to load experience";
+  }
 
   return (
     <section
@@ -123,125 +73,109 @@ export default function Experience() {
           <div className="mx-auto mt-5 h-[2px] w-24 bg-cyan-400" />
         </div>
 
-        {/* Loading */}
-        {loading && (
-          <div className="mt-20 text-center text-gray-600 dark:text-gray-400">
-            Loading Experience...
-          </div>
-        )}
-
         {/* Error */}
-        {!loading && error && (
+        {error && (
           <div className="mt-20 text-center">
             <p className="text-red-500 dark:text-red-400">
               Failed to load experience.
-            </p>
-
-            <p className="mt-2 text-sm text-gray-500">
-              {error}
             </p>
           </div>
         )}
 
         {/* Empty */}
-        {!loading &&
-          !error &&
-          experiences.length === 0 && (
-            <div className="mt-20 text-center text-gray-600 dark:text-gray-400">
-              No experience data found.
-            </div>
-          )}
+        {!error && experiences.length === 0 && (
+          <div className="mt-20 text-center text-gray-600 dark:text-gray-400">
+            No experience data found.
+          </div>
+        )}
 
         {/* Timeline */}
-        {!loading &&
-          !error &&
-          experiences.length > 0 && (
-            <div className="relative mt-20 border-l border-black/10 pl-8 dark:border-white/10 sm:pl-10">
-              {experiences.map((exp) => (
-                <div
-                  key={exp.id}
-                  className="relative mb-10 sm:mb-12"
-                >
-                  {/* Timeline Dot */}
-                  <div className="absolute -left-[34px] top-2 sm:-left-[42px]">
-                    <div className="relative flex h-5 w-5 items-center justify-center">
-                      <span className="absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-30" />
+        {!error && experiences.length > 0 && (
+          <div className="relative mt-20 border-l border-black/10 pl-8 dark:border-white/10 sm:pl-10">
+            {experiences.map((exp) => (
+              <div
+                key={exp.id}
+                className="relative mb-10 sm:mb-12"
+              >
+                {/* Timeline Dot */}
+                <div className="absolute -left-[34px] top-2 sm:-left-[42px]">
+                  <div className="relative flex h-5 w-5 items-center justify-center">
+                    <span className="absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-30" />
 
-                      <span className="relative h-3 w-3 rounded-full bg-cyan-400" />
-                    </div>
-                  </div>
-
-                  {/* Card */}
-                  <div
-                    className="
-                      rounded-3xl
-                      border
-                      border-black/10
-                      bg-black/[0.03]
-                      p-5
-                      transition-all
-                      duration-300
-
-                      hover:border-cyan-400/40
-                      hover:shadow-[0_0_30px_rgba(34,211,238,0.10)]
-
-                      dark:border-white/10
-                      dark:bg-white/5
-
-                      sm:p-6
-                    "
-                  >
-                    {/* Year */}
-                    <span
-                      className="
-                        inline-block
-                        rounded-full
-                        border
-                        border-cyan-500/30
-                        bg-cyan-500/10
-                        px-3
-                        py-1
-                        text-xs
-                        font-semibold
-                        text-cyan-700
-
-                        dark:border-cyan-400/30
-                        dark:bg-cyan-400/10
-                        dark:text-cyan-300
-                      "
-                    >
-                      {exp.year || "Present"}
-                    </span>
-
-                    {/* Title */}
-                    <h3 className="mt-3 text-xl font-bold text-gray-900 dark:text-white">
-                      {exp.title ||
-                        "Untitled Experience"}
-                    </h3>
-
-                    {/* Company */}
-                    <p className="mt-1 text-sm font-medium text-cyan-600 dark:text-cyan-400">
-                      {exp.company ||
-                        "Company not specified"}
-                    </p>
-
-                    {/* Location */}
-                    {exp.location && (
-                      <p className="mt-2 text-xs text-gray-600 dark:text-gray-400">
-                        📍 {exp.location}
-                      </p>
-                    )}
-
-                    {/* Description */}
-                    <p className="mt-4 leading-7 text-gray-600 dark:text-gray-400">
-                      {exp.description ||
-                        "No description provided."}
-                    </p>
+                    <span className="relative h-3 w-3 rounded-full bg-cyan-400" />
                   </div>
                 </div>
-              ))}
-            </div>
-          )}
+
+                {/* Card */}
+                <div
+                  className="
+                    rounded-3xl
+                    border
+                    border-black/10
+                    bg-black/[0.03]
+                    p-5
+                    transition-all
+                    duration-300
+
+                    hover:border-cyan-400/40
+
+                    dark:border-white/10
+                    dark:bg-white/5
+
+                    sm:p-6
+                  "
+                >
+                  {/* Year */}
+                  <span
+                    className="
+                      inline-block
+                      rounded-full
+                      border
+                      border-cyan-500/30
+                      bg-cyan-500/10
+                      px-3
+                      py-1
+                      text-xs
+                      font-semibold
+                      text-cyan-700
+
+                      dark:border-cyan-400/30
+                      dark:bg-cyan-400/10
+                      dark:text-cyan-300
+                    "
+                  >
+                    {exp.year || "Present"}
+                  </span>
+
+                  {/* Title */}
+                  <h3 className="mt-3 text-xl font-bold text-gray-900 dark:text-white">
+                    {exp.title ||
+                      "Untitled Experience"}
+                  </h3>
+
+                  {/* Company */}
+                  <p className="mt-1 text-sm font-medium text-cyan-600 dark:text-cyan-400">
+                    {exp.company ||
+                      "Company not specified"}
+                  </p>
+
+                  {/* Location */}
+                  {exp.location && (
+                    <p className="mt-2 text-xs text-gray-600 dark:text-gray-400">
+                      📍 {exp.location}
+                    </p>
+                  )}
+
+                  {/* Description */}
+                  <p className="mt-4 leading-7 text-gray-600 dark:text-gray-400">
+                    {exp.description ||
+                      "No description provided."}
+                  </p>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
     </section>
   );

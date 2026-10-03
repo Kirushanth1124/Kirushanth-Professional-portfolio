@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import {
   Menu,
   X,
@@ -20,112 +20,7 @@ const links = [
 ];
 
 export default function Navbar() {
-  const [active, setActive] = useState("hero");
   const [open, setOpen] = useState(false);
-  const [scrolled, setScrolled] = useState(false);
-
-  useEffect(() => {
-    function handleScroll() {
-      setScrolled(window.scrollY > 30);
-
-      const scrollPosition =
-        window.scrollY + 160;
-
-      let currentSection = "hero";
-
-      links.forEach((link) => {
-        const section =
-          document.getElementById(link.id);
-
-        if (!section) return;
-
-        const top =
-          section.offsetTop;
-
-        const height =
-          section.offsetHeight;
-
-        if (
-          scrollPosition >= top &&
-          scrollPosition < top + height
-        ) {
-          currentSection =
-            link.id;
-        }
-      });
-
-      setActive(currentSection);
-    }
-
-    handleScroll();
-
-    window.addEventListener(
-      "scroll",
-      handleScroll,
-      {
-        passive: true,
-      }
-    );
-
-    return () => {
-      window.removeEventListener(
-        "scroll",
-        handleScroll
-      );
-    };
-  }, []);
-
-  useEffect(() => {
-    function handleKeyDown(
-      event: KeyboardEvent
-    ) {
-      if (
-        event.key === "Escape"
-      ) {
-        setOpen(false);
-      }
-    }
-
-    window.addEventListener(
-      "keydown",
-      handleKeyDown
-    );
-
-    return () => {
-      window.removeEventListener(
-        "keydown",
-        handleKeyDown
-      );
-    };
-  }, []);
-
-  function scrollToSection(
-    id: string
-  ) {
-    const element =
-      document.getElementById(id);
-
-    if (!element) {
-      setOpen(false);
-      return;
-    }
-
-    const navbarOffset = 110;
-
-    const elementPosition =
-      element.getBoundingClientRect()
-        .top + window.scrollY;
-
-    window.scrollTo({
-      top:
-        elementPosition -
-        navbarOffset,
-      behavior: "smooth",
-    });
-
-    setActive(id);
-    setOpen(false);
-  }
 
   return (
     <>
@@ -144,47 +39,28 @@ export default function Navbar() {
         "
       >
         <div
-          className={`
+          className="
             relative
             flex
             w-full
             items-center
             rounded-full
             border
+            border-black/10
+            bg-white/95
             px-4
             py-3
-            transition-all
-            duration-300
+            shadow-lg
+
+            dark:border-white/10
+            dark:bg-black/95
 
             sm:px-6
-
-            ${
-              scrolled
-                ? `
-                    border-black/10
-                    bg-white/95
-                    shadow-lg
-
-                    dark:border-white/10
-                    dark:bg-black/95
-                    dark:shadow-2xl
-                  `
-                : `
-                    border-black/10
-                    bg-white/90
-
-                    dark:border-white/10
-                    dark:bg-black/90
-                  `
-            }
-          `}
+          "
         >
           {/* Logo */}
-          <button
-            type="button"
-            onClick={() =>
-              scrollToSection("hero")
-            }
+          <a
+            href="#hero"
             className="
               relative
               z-10
@@ -199,48 +75,40 @@ export default function Navbar() {
             </span>
 
             <div className="absolute -bottom-1 left-0 h-[2px] w-full bg-cyan-400 opacity-60" />
-          </button>
+          </a>
 
           {/* Desktop Menu */}
           <div className="mx-auto hidden items-center justify-center gap-1 md:flex lg:gap-2">
-            {links.map((link) => {
-              const isActive =
-                active === link.id;
+            {links.map((link) => (
+              <a
+                key={link.id}
+                href={`#${link.id}`}
+                className="
+                  relative
+                  rounded-full
+                  px-2.5
+                  py-2
+                  text-sm
+                  text-gray-700
+                  transition-colors
 
-              return (
-                <button
-                  key={link.id}
-                  type="button"
-                  onClick={() =>
-                    scrollToSection(
-                      link.id
-                    )
-                  }
-                  className={`
-                    relative
-                    rounded-full
-                    px-2.5
-                    py-2
-                    text-sm
-                    transition-colors
+                  hover:bg-black/5
+                  hover:text-cyan-600
 
-                    lg:px-3
-                    lg:text-[15px]
+                  dark:text-gray-300
+                  dark:hover:bg-white/5
+                  dark:hover:text-cyan-400
 
-                    xl:px-4
-                    xl:text-base
+                  lg:px-3
+                  lg:text-[15px]
 
-                    ${
-                      isActive
-                        ? "bg-cyan-500/10 text-cyan-600 dark:text-cyan-400"
-                        : "text-gray-700 hover:bg-black/5 hover:text-cyan-600 dark:text-gray-300 dark:hover:bg-white/5 dark:hover:text-cyan-400"
-                    }
-                  `}
-                >
-                  {link.label}
-                </button>
-              );
-            })}
+                  xl:px-4
+                  xl:text-base
+                "
+              >
+                {link.label}
+              </a>
+            ))}
           </div>
 
           {/* Desktop Theme Toggle */}
@@ -264,10 +132,7 @@ export default function Navbar() {
             <button
               type="button"
               onClick={() =>
-                setOpen(
-                  (current) =>
-                    !current
-                )
+                setOpen((current) => !current)
               }
               aria-label={
                 open
@@ -286,7 +151,6 @@ export default function Navbar() {
                 border-black/10
                 bg-black/5
                 text-cyan-600
-                transition-colors
 
                 dark:border-white/10
                 dark:bg-white/5
@@ -333,33 +197,29 @@ export default function Navbar() {
         >
           <div className="flex flex-col gap-2">
             {links.map((link) => (
-              <button
+              <a
                 key={link.id}
-                type="button"
-                onClick={() =>
-                  scrollToSection(
-                    link.id
-                  )
-                }
-                className={`
+                href={`#${link.id}`}
+                onClick={() => setOpen(false)}
+                className="
                   rounded-xl
                   px-4
                   py-3
                   text-left
                   text-sm
                   font-medium
-                  transition-colors
+                  text-gray-700
 
-                  ${
-                    active ===
-                    link.id
-                      ? "bg-cyan-500/10 text-cyan-600 dark:text-cyan-400"
-                      : "text-gray-700 hover:bg-black/5 hover:text-black dark:text-gray-300 dark:hover:bg-white/5 dark:hover:text-white"
-                  }
-                `}
+                  hover:bg-black/5
+                  hover:text-cyan-600
+
+                  dark:text-gray-300
+                  dark:hover:bg-white/5
+                  dark:hover:text-cyan-400
+                "
               >
                 {link.label}
-              </button>
+              </a>
             ))}
           </div>
         </div>
