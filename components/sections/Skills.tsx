@@ -1,6 +1,5 @@
 "use client";
 
-import { motion } from "framer-motion";
 import { useEffect, useMemo, useState } from "react";
 
 interface Skill {
@@ -19,6 +18,8 @@ export default function Skills() {
   const [error, setError] = useState("");
 
   useEffect(() => {
+    let active = true;
+
     async function fetchSkills() {
       try {
         setLoading(true);
@@ -43,26 +44,36 @@ export default function Skills() {
           );
         }
 
-        setSkills(data);
+        if (active) {
+          setSkills(data);
+        }
       } catch (err) {
         console.error(
           "Failed to load skills:",
           err
         );
 
-        setError(
-          err instanceof Error
-            ? err.message
-            : "Failed to load skills"
-        );
+        if (active) {
+          setError(
+            err instanceof Error
+              ? err.message
+              : "Failed to load skills"
+          );
 
-        setSkills([]);
+          setSkills([]);
+        }
       } finally {
-        setLoading(false);
+        if (active) {
+          setLoading(false);
+        }
       }
     }
 
     fetchSkills();
+
+    return () => {
+      active = false;
+    };
   }, []);
 
   const groupedSkills = useMemo(() => {
@@ -104,26 +115,13 @@ export default function Skills() {
       "
     >
       {/* Background Glow */}
-      <div className="absolute left-0 top-0 h-72 w-72 rounded-full bg-cyan-500/10 blur-[120px]" />
+      <div className="pointer-events-none absolute left-0 top-0 h-72 w-72 rounded-full bg-cyan-500/10 blur-[120px]" />
 
-      <div className="absolute bottom-0 right-0 h-72 w-72 rounded-full bg-purple-500/10 blur-[120px]" />
+      <div className="pointer-events-none absolute bottom-0 right-0 h-72 w-72 rounded-full bg-purple-500/10 blur-[120px]" />
 
       <div className="relative z-10 mx-auto max-w-7xl">
         {/* Heading */}
-        <motion.div
-          initial={{
-            opacity: 0,
-            y: 30,
-          }}
-          whileInView={{
-            opacity: 1,
-            y: 0,
-          }}
-          viewport={{
-            once: true,
-          }}
-          className="text-center"
-        >
+        <div className="text-center">
           <p className="mb-3 text-sm font-semibold uppercase tracking-[0.3em] text-cyan-600 dark:text-cyan-400">
             Technologies I Use
           </p>
@@ -132,8 +130,8 @@ export default function Skills() {
             My Skills
           </h2>
 
-          <div className="mx-auto mt-5 h-[2px] w-24 bg-gradient-to-r from-transparent via-cyan-400 to-transparent" />
-        </motion.div>
+          <div className="mx-auto mt-5 h-[2px] w-24 bg-cyan-400" />
+        </div>
 
         {/* Loading */}
         {loading && (
@@ -170,34 +168,15 @@ export default function Skills() {
           skills.length > 0 && (
             <div className="mt-20 space-y-10">
               {Object.entries(groupedSkills).map(
-                (
-                  [category, categorySkills],
-                  categoryIndex
-                ) => (
-                  <motion.div
+                ([category, categorySkills]) => (
+                  <div
                     key={category}
-                    initial={{
-                      opacity: 0,
-                      y: 30,
-                    }}
-                    whileInView={{
-                      opacity: 1,
-                      y: 0,
-                    }}
-                    viewport={{
-                      once: true,
-                    }}
-                    transition={{
-                      delay:
-                        categoryIndex * 0.1,
-                    }}
                     className="
                       rounded-3xl
                       border
                       border-black/10
                       bg-black/[0.03]
                       p-6
-                      backdrop-blur-xl
                       transition-all
                       duration-300
 
@@ -214,11 +193,8 @@ export default function Skills() {
                     <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
                       {categorySkills.map(
                         (skill) => (
-                          <motion.div
+                          <div
                             key={skill.id}
-                            whileHover={{
-                              y: -4,
-                            }}
                             className="
                               rounded-2xl
                               border
@@ -229,6 +205,7 @@ export default function Skills() {
                               transition-all
                               duration-300
 
+                              hover:-translate-y-1
                               hover:border-cyan-400/40
                               hover:shadow-[0_12px_30px_rgba(34,211,238,0.08)]
 
@@ -271,11 +248,11 @@ export default function Skills() {
                                 {skill.icon}
                               </p>
                             )}
-                          </motion.div>
+                          </div>
                         )
                       )}
                     </div>
-                  </motion.div>
+                  </div>
                 )
               )}
             </div>

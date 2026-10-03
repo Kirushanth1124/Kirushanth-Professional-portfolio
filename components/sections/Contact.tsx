@@ -1,13 +1,12 @@
 "use client";
 
-import { motion } from "framer-motion";
+import { useState } from "react";
 import {
   Mail,
   Phone,
   MapPin,
   Send,
 } from "lucide-react";
-import { useState } from "react";
 
 export default function Contact() {
   const [name, setName] = useState("");
@@ -15,7 +14,7 @@ export default function Contact() {
   const [subject, setSubject] = useState("");
   const [message, setMessage] = useState("");
 
-  // Honeypot field for bot protection
+  // Honeypot
   const [website, setWebsite] = useState("");
 
   const [loading, setLoading] = useState(false);
@@ -37,7 +36,6 @@ export default function Contact() {
         headers: {
           "Content-Type": "application/json",
         },
-
         body: JSON.stringify({
           name,
           email,
@@ -106,7 +104,7 @@ export default function Contact() {
     py-3
     text-gray-900
     outline-none
-    transition
+    transition-colors
 
     placeholder:text-gray-400
     focus:border-cyan-500
@@ -143,25 +141,13 @@ export default function Contact() {
       "
     >
       {/* Background Glow */}
-      <div className="absolute left-0 top-0 h-56 w-56 rounded-full bg-cyan-500/10 blur-[110px]" />
+      <div className="pointer-events-none absolute left-0 top-0 h-56 w-56 rounded-full bg-cyan-500/10 blur-[110px]" />
 
-      <div className="absolute bottom-0 right-0 h-56 w-56 rounded-full bg-purple-500/10 blur-[110px]" />
+      <div className="pointer-events-none absolute bottom-0 right-0 h-56 w-56 rounded-full bg-purple-500/10 blur-[110px]" />
 
       <div className="relative z-10 mx-auto max-w-5xl text-center">
         {/* Heading */}
-        <motion.div
-          initial={{
-            opacity: 0,
-            y: 25,
-          }}
-          whileInView={{
-            opacity: 1,
-            y: 0,
-          }}
-          viewport={{
-            once: true,
-          }}
-        >
+        <div>
           <p className="mb-2 text-xs font-semibold uppercase tracking-[0.25em] text-cyan-600 dark:text-cyan-400 sm:text-sm">
             Get In Touch
           </p>
@@ -170,56 +156,38 @@ export default function Contact() {
             Contact Me
           </h2>
 
-          <div className="mx-auto mt-4 h-[2px] w-20 bg-gradient-to-r from-transparent via-cyan-400 to-transparent" />
+          <div className="mx-auto mt-4 h-[2px] w-20 bg-cyan-400" />
 
           <p className="mx-auto mt-4 max-w-2xl text-sm leading-6 text-gray-600 dark:text-gray-400 sm:text-base sm:leading-7">
             Have a project, opportunity, or idea?
             Feel free to get in touch.
           </p>
-        </motion.div>
+        </div>
 
         {/* Contact Cards */}
         <div className="mt-8 grid gap-4 md:grid-cols-3 md:gap-5">
-          {contactItems.map((item, index) => {
+          {contactItems.map((item) => {
             const Icon = item.icon;
 
             return (
-              <motion.a
+              <a
                 key={item.title}
                 href={item.link}
-                initial={{
-                  opacity: 0,
-                  y: 30,
-                }}
-                whileInView={{
-                  opacity: 1,
-                  y: 0,
-                }}
-                viewport={{
-                  once: true,
-                }}
-                transition={{
-                  delay: index * 0.1,
-                }}
-                whileHover={{
-                  y: -6,
-                }}
                 className="
                   rounded-3xl
                   border
                   border-black/10
                   bg-black/[0.03]
                   p-5
-                  backdrop-blur-xl
                   transition-all
                   duration-300
 
+                  hover:-translate-y-1
                   hover:border-cyan-400/40
                   hover:shadow-[0_0_25px_rgba(34,211,238,0.10)]
 
                   dark:border-white/10
                   dark:bg-white/5
-                  dark:hover:shadow-[0_0_25px_rgba(34,211,238,0.15)]
                 "
               >
                 <Icon
@@ -234,25 +202,14 @@ export default function Contact() {
                 <p className="mt-2 break-words text-sm text-gray-600 dark:text-gray-400">
                   {item.value}
                 </p>
-              </motion.a>
+              </a>
             );
           })}
         </div>
 
         {/* Contact Form */}
-        <motion.form
+        <form
           onSubmit={handleSubmit}
-          initial={{
-            opacity: 0,
-            y: 40,
-          }}
-          whileInView={{
-            opacity: 1,
-            y: 0,
-          }}
-          viewport={{
-            once: true,
-          }}
           className="
             relative
             mt-8
@@ -263,7 +220,6 @@ export default function Contact() {
             bg-black/[0.03]
             p-5
             text-left
-            backdrop-blur-xl
             transition-colors
             duration-300
 
@@ -273,7 +229,7 @@ export default function Contact() {
             sm:p-7
           "
         >
-          {/* Honeypot - hidden from real users */}
+          {/* Honeypot */}
           <div
             aria-hidden="true"
             className="absolute left-[-9999px] top-auto h-px w-px overflow-hidden"
@@ -407,17 +363,14 @@ export default function Contact() {
               justify-center
               gap-2
               rounded-xl
-              bg-gradient-to-r
-              from-cyan-400
-              via-blue-500
-              to-purple-500
+              bg-cyan-500
               px-6
               py-3
               font-semibold
               text-white
-              transition
+              transition-colors
 
-              hover:scale-[1.01]
+              hover:bg-cyan-600
 
               disabled:cursor-not-allowed
               disabled:opacity-50
@@ -443,7 +396,7 @@ export default function Contact() {
               {error}
             </p>
           )}
-        </motion.form>
+        </form>
 
         {/* Quick Actions */}
         <div className="mt-6 flex flex-col justify-center gap-3 sm:flex-row sm:flex-wrap">
@@ -459,7 +412,7 @@ export default function Contact() {
               text-sm
               font-semibold
               text-gray-800
-              transition
+              transition-colors
 
               hover:border-cyan-400
               hover:text-cyan-600
@@ -477,7 +430,7 @@ export default function Contact() {
             href="https://wa.me/94751232830"
             target="_blank"
             rel="noopener noreferrer"
-            className="rounded-full bg-cyan-500 px-6 py-3 text-sm font-semibold text-black transition hover:scale-105"
+            className="rounded-full bg-cyan-500 px-6 py-3 text-sm font-semibold text-black transition-colors hover:bg-cyan-400"
           >
             WhatsApp
           </a>

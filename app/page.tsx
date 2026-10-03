@@ -13,9 +13,6 @@ import Footer from "@/components/sections/Footer";
 export default function Home() {
   return (
     <>
-      <div className="glow-1"></div>
-      <div className="glow-2"></div>
-
       <Navbar />
 
       <main className="relative z-10 bg-white text-gray-900 transition-colors duration-300 dark:bg-black dark:text-white">
@@ -27,7 +24,7 @@ export default function Home() {
         <Certificates />
         <Testimonials />
         <Contact />
-        <TestimonialSubmit />             
+        <TestimonialSubmit />
         <Footer />
       </main>
     </>

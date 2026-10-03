@@ -12,8 +12,6 @@ export default function TestimonialSubmit() {
   const [role, setRole] = useState("");
   const [company, setCompany] = useState("");
   const [review, setReview] = useState("");
-
-  // Honeypot field for bot protection
   const [website, setWebsite] = useState("");
 
   const [loading, setLoading] = useState(false);
@@ -103,18 +101,19 @@ export default function TestimonialSubmit() {
     py-3
     text-gray-900
     outline-none
-    transition
+    transition-colors
 
     placeholder:text-gray-400
-    focus:border-cyan-500/60
+    focus:border-cyan-500
 
+    disabled:cursor-not-allowed
     disabled:opacity-50
 
     dark:border-white/10
     dark:bg-black/30
     dark:text-white
     dark:placeholder:text-gray-600
-    dark:focus:border-cyan-400/60
+    dark:focus:border-cyan-400
   `;
 
   return (
@@ -138,7 +137,7 @@ export default function TestimonialSubmit() {
       "
     >
       {/* Background Glow */}
-      <div className="absolute left-1/2 top-1/2 h-64 w-64 -translate-x-1/2 -translate-y-1/2 rounded-full bg-cyan-500/10 blur-[110px]" />
+      <div className="pointer-events-none absolute left-1/2 top-1/2 h-64 w-64 -translate-x-1/2 -translate-y-1/2 rounded-full bg-cyan-500/10 blur-[110px]" />
 
       <div className="relative z-10 mx-auto max-w-3xl">
         {/* Heading */}
@@ -157,7 +156,7 @@ export default function TestimonialSubmit() {
             appears on the website.
           </p>
 
-          <div className="mx-auto mt-4 h-[2px] w-20 bg-gradient-to-r from-transparent via-cyan-400 to-transparent" />
+          <div className="mx-auto mt-4 h-[2px] w-20 bg-cyan-400" />
         </div>
 
         {/* Form */}
@@ -171,18 +170,16 @@ export default function TestimonialSubmit() {
             bg-black/[0.03]
             p-5
             shadow-xl
-            backdrop-blur-xl
             transition-colors
             duration-300
 
             dark:border-white/10
             dark:bg-white/5
-            dark:shadow-2xl
 
             sm:p-7
           "
         >
-          {/* Honeypot - hidden from real users */}
+          {/* Honeypot */}
           <div
             aria-hidden="true"
             className="absolute left-[-9999px] top-auto h-px w-px overflow-hidden"
@@ -336,17 +333,14 @@ export default function TestimonialSubmit() {
               justify-center
               gap-2
               rounded-xl
-              bg-gradient-to-r
-              from-cyan-400
-              via-blue-500
-              to-purple-500
+              bg-cyan-500
               px-6
               py-3.5
               font-bold
               text-white
-              transition
+              transition-colors
 
-              hover:scale-[1.01]
+              hover:bg-cyan-600
 
               disabled:cursor-not-allowed
               disabled:opacity-60

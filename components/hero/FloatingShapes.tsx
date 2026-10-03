@@ -1,31 +1,28 @@
 "use client";
 
-import { motion } from "framer-motion";
-
 export default function FloatingShapes() {
   return (
-    <>
+    <div
+      aria-hidden="true"
+      className="pointer-events-none absolute inset-0 overflow-hidden"
+    >
       {/* Top Left Square */}
-      <motion.div
-        animate={{
-          y: [0, -20, 0],
-          rotate: [12, 20, 12],
-        }}
-        transition={{
-          duration: 8,
-          repeat: Infinity,
-          ease: "easeInOut",
-        }}
+      <div
         className="
           absolute
           left-[6%]
           top-[12%]
-          h-40
-          w-40
-          rounded-[28px]
+          h-24
+          w-24
+          rounded-[22px]
           border
-          border-cyan-500/20
-          bg-cyan-500/[0.02]
+          border-cyan-500/15
+          bg-cyan-500/[0.03]
+
+          sm:h-32
+          sm:w-32
+          md:h-36
+          md:w-36
 
           dark:border-cyan-500/10
           dark:bg-transparent
@@ -33,26 +30,22 @@ export default function FloatingShapes() {
       />
 
       {/* Top Right Circle */}
-      <motion.div
-        animate={{
-          y: [0, 15, 0],
-          x: [0, -10, 0],
-        }}
-        transition={{
-          duration: 6,
-          repeat: Infinity,
-          ease: "easeInOut",
-        }}
+      <div
         className="
           absolute
           right-[8%]
           top-[20%]
-          h-24
-          w-24
+          h-16
+          w-16
           rounded-full
           border
-          border-indigo-500/20
-          bg-indigo-500/[0.02]
+          border-indigo-500/15
+          bg-indigo-500/[0.03]
+
+          sm:h-20
+          sm:w-20
+          md:h-24
+          md:w-24
 
           dark:border-indigo-500/10
           dark:bg-transparent
@@ -60,25 +53,22 @@ export default function FloatingShapes() {
       />
 
       {/* Bottom Right Diamond */}
-      <motion.div
-        animate={{
-          y: [0, -12, 0],
-          rotate: [45, 60, 45],
-        }}
-        transition={{
-          duration: 7,
-          repeat: Infinity,
-          ease: "easeInOut",
-        }}
+      <div
         className="
           absolute
           bottom-[22%]
           right-[12%]
-          h-16
-          w-16
+          h-12
+          w-12
+          rotate-45
           border
-          border-purple-500/20
-          bg-purple-500/[0.02]
+          border-purple-500/15
+          bg-purple-500/[0.03]
+
+          sm:h-14
+          sm:w-14
+          md:h-16
+          md:w-16
 
           dark:border-purple-500/10
           dark:bg-transparent
@@ -86,31 +76,27 @@ export default function FloatingShapes() {
       />
 
       {/* Bottom Left Circle */}
-      <motion.div
-        animate={{
-          y: [0, 20, 0],
-          x: [0, 10, 0],
-        }}
-        transition={{
-          duration: 9,
-          repeat: Infinity,
-          ease: "easeInOut",
-        }}
+      <div
         className="
           absolute
           bottom-[30%]
           left-[5%]
-          h-32
-          w-32
+          h-20
+          w-20
           rounded-full
           border
-          border-cyan-500/20
-          bg-cyan-500/[0.02]
+          border-cyan-500/15
+          bg-cyan-500/[0.03]
+
+          sm:h-24
+          sm:w-24
+          md:h-28
+          md:w-28
 
           dark:border-cyan-500/10
           dark:bg-transparent
         "
       />
-    </>
+    </div>
   );
 }

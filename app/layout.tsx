@@ -20,7 +20,7 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   metadataBase: new URL(
-    "https://your-domain.com"
+    "https://kirushanthdev.vercel.app"
   ),
 
   title: {
@@ -58,7 +58,7 @@ export const metadata: Metadata = {
   openGraph: {
     type: "website",
     locale: "en_US",
-    url: "https://your-domain.com",
+    url: "https://kirushanthdev.vercel.app",
     siteName: "Kirushanth Portfolio",
 
     title: "Kirushanth | Software Engineer",
@@ -68,9 +68,9 @@ export const metadata: Metadata = {
 
     images: [
       {
-        url: "/icon.png",
-        width: 512,
-        height: 512,
+        url: "/opengraph-image.png",
+        width: 1200,
+        height: 630,
         alt: "Kirushanth Portfolio",
       },
     ],
@@ -84,7 +84,7 @@ export const metadata: Metadata = {
     description:
       "Explore Kirushanth's software engineering projects, skills, experience, and achievements.",
 
-    images: ["/icon.png"],
+    images: ["/opengraph-image.png"],
   },
 
   robots: {

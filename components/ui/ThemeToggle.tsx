@@ -5,8 +5,13 @@ import { Moon, Sun } from "lucide-react";
 import { useTheme } from "next-themes";
 
 export default function ThemeToggle() {
-  const { theme, setTheme } = useTheme();
-  const [mounted, setMounted] = useState(false);
+  const {
+    resolvedTheme,
+    setTheme,
+  } = useTheme();
+
+  const [mounted, setMounted] =
+    useState(false);
 
   useEffect(() => {
     setMounted(true);
@@ -14,26 +19,54 @@ export default function ThemeToggle() {
 
   if (!mounted) {
     return (
-      <div className="h-9 w-9 rounded-full border border-black/10 bg-black/5 dark:border-white/10 dark:bg-white/5" />
+      <div
+        aria-hidden="true"
+        className="
+          h-9
+          w-9
+          shrink-0
+          rounded-full
+          border
+          border-black/10
+          bg-black/5
+
+          dark:border-white/10
+          dark:bg-white/5
+        "
+      />
     );
   }
 
-  const isDark = theme === "dark";
+  const isDark =
+    resolvedTheme === "dark";
 
   return (
     <button
       type="button"
       onClick={() =>
-        setTheme(isDark ? "light" : "dark")
+        setTheme(
+          isDark ? "light" : "dark"
+        )
       }
-      aria-label="Toggle theme"
+      aria-label={
+        isDark
+          ? "Switch to light mode"
+          : "Switch to dark mode"
+      }
       className="
-        flex h-9 w-9 shrink-0 items-center justify-center
+        flex
+        h-9
+        w-9
+        shrink-0
+        items-center
+        justify-center
         rounded-full
-        border border-black/10
+        border
+        border-black/10
         bg-black/5
         text-gray-700
-        transition
+        transition-colors
+
         hover:border-cyan-400/50
         hover:text-cyan-500
 

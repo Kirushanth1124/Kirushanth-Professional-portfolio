@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { motion } from "framer-motion";
 import { ArrowUpRight } from "lucide-react";
 import { FaGithub } from "react-icons/fa";
 
@@ -22,6 +21,8 @@ export default function Projects() {
   const [error, setError] = useState("");
 
   useEffect(() => {
+    let active = true;
+
     async function fetchProjects() {
       try {
         setLoading(true);
@@ -46,26 +47,36 @@ export default function Projects() {
           );
         }
 
-        setProjects(data);
+        if (active) {
+          setProjects(data);
+        }
       } catch (err) {
         console.error(
           "Failed to load projects:",
           err
         );
 
-        setError(
-          err instanceof Error
-            ? err.message
-            : "Failed to load projects"
-        );
+        if (active) {
+          setError(
+            err instanceof Error
+              ? err.message
+              : "Failed to load projects"
+          );
 
-        setProjects([]);
+          setProjects([]);
+        }
       } finally {
-        setLoading(false);
+        if (active) {
+          setLoading(false);
+        }
       }
     }
 
     fetchProjects();
+
+    return () => {
+      active = false;
+    };
   }, []);
 
   return (
@@ -89,26 +100,13 @@ export default function Projects() {
       "
     >
       {/* Background Glow */}
-      <div className="absolute left-0 top-0 h-72 w-72 rounded-full bg-cyan-500/10 blur-[120px]" />
+      <div className="pointer-events-none absolute left-0 top-0 h-72 w-72 rounded-full bg-cyan-500/10 blur-[120px]" />
 
-      <div className="absolute bottom-0 right-0 h-72 w-72 rounded-full bg-purple-500/10 blur-[120px]" />
+      <div className="pointer-events-none absolute bottom-0 right-0 h-72 w-72 rounded-full bg-purple-500/10 blur-[120px]" />
 
       <div className="relative z-10 mx-auto max-w-7xl">
         {/* Heading */}
-        <motion.div
-          initial={{
-            opacity: 0,
-            y: 25,
-          }}
-          whileInView={{
-            opacity: 1,
-            y: 0,
-          }}
-          viewport={{
-            once: true,
-          }}
-          className="text-center"
-        >
+        <div className="text-center">
           <p className="mb-3 text-sm font-semibold uppercase tracking-[0.3em] text-cyan-600 dark:text-cyan-400">
             My Work
           </p>
@@ -117,8 +115,8 @@ export default function Projects() {
             Featured Projects
           </h2>
 
-          <div className="mx-auto mt-5 h-[2px] w-24 bg-gradient-to-r from-transparent via-cyan-400 to-transparent" />
-        </motion.div>
+          <div className="mx-auto mt-5 h-[2px] w-24 bg-cyan-400" />
+        </div>
 
         {/* Loading */}
         {loading && (
@@ -156,26 +154,8 @@ export default function Projects() {
             <div className="mt-20 grid gap-8 md:grid-cols-2">
               {projects.map(
                 (project, index) => (
-                  <motion.div
+                  <div
                     key={project.id}
-                    initial={{
-                      opacity: 0,
-                      y: 40,
-                    }}
-                    whileInView={{
-                      opacity: 1,
-                      y: 0,
-                    }}
-                    viewport={{
-                      once: true,
-                    }}
-                    transition={{
-                      duration: 0.5,
-                      delay: index * 0.1,
-                    }}
-                    whileHover={{
-                      y: -8,
-                    }}
                     className="
                       group
                       relative
@@ -185,10 +165,10 @@ export default function Projects() {
                       border-black/10
                       bg-black/[0.03]
                       p-6
-                      backdrop-blur-xl
                       transition-all
                       duration-300
 
+                      hover:-translate-y-2
                       hover:border-cyan-400/40
                       hover:shadow-[0_18px_50px_rgba(34,211,238,0.08)]
 
@@ -198,16 +178,9 @@ export default function Projects() {
                       sm:p-8
                     "
                   >
-                    {/* Hover Border */}
-                    <div className="pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-500 group-hover:opacity-100">
-                      <div className="absolute inset-0 rounded-3xl border border-cyan-400/30" />
-                    </div>
-
                     {/* Number */}
                     <span className="mb-4 block text-5xl font-extrabold text-black/5 dark:text-white/5">
-                      {String(
-                        index + 1
-                      ).padStart(
+                      {String(index + 1).padStart(
                         2,
                         "0"
                       )}
@@ -232,8 +205,7 @@ export default function Projects() {
                           .split(",")
                           .filter(
                             (tech) =>
-                              tech.trim()
-                                .length >
+                              tech.trim().length >
                               0
                           )
                           .map(
@@ -288,7 +260,7 @@ export default function Projects() {
                               py-2.5
                               text-sm
                               text-gray-800
-                              transition-all
+                              transition-colors
 
                               hover:border-cyan-400/40
                               hover:text-cyan-600
@@ -319,19 +291,15 @@ export default function Projects() {
                               items-center
                               gap-2
                               rounded-full
-                              bg-gradient-to-r
-                              from-cyan-400
-                              via-blue-500
-                              to-purple-500
+                              bg-cyan-500
                               px-5
                               py-2.5
                               text-sm
                               font-medium
                               text-white
-                              shadow-[0_0_20px_rgba(34,211,238,0.18)]
-                              transition-all
+                              transition-colors
 
-                              hover:scale-105
+                              hover:bg-cyan-600
                             "
                           >
                             Live Demo
@@ -343,7 +311,7 @@ export default function Projects() {
                         )}
                       </div>
                     )}
-                  </motion.div>
+                  </div>
                 )
               )}
             </div>

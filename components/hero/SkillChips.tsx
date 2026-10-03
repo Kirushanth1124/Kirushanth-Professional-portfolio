@@ -22,13 +22,11 @@ export default function SkillChips() {
             text-xs
             font-semibold
             text-cyan-700
-            transition-all
+            transition-colors
             duration-300
 
-            hover:-translate-y-1
             hover:border-cyan-500/50
             hover:bg-cyan-500/15
-            hover:shadow-[0_8px_25px_rgba(6,182,212,0.12)]
 
             dark:border-cyan-400/20
             dark:bg-cyan-500/5
